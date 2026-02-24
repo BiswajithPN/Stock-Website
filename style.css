@@ -125,21 +125,6 @@ body.light-mode {
     border-top: 1px solid var(--border-dark);
 }
 
-.welcome-header {
-    margin-bottom: 30px;
-}
-
-.welcome-header h1 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.welcome-header p {
-    color: var(--text-secondary-dark);
-    font-size: 1rem;
-}
-
 .theme-btn {
     width: 100%;
     padding: 12px;
@@ -313,6 +298,28 @@ body.light-mode {
 .price-container h2 {
     font-size: 3rem;
     font-weight: 700;
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+.pulse-price {
+    animation: priceFlash 0.3s ease-out;
+}
+
+@keyframes priceFlash {
+    0% {
+        transform: scale(1);
+        color: var(--accent-primary);
+    }
+
+    50% {
+        transform: scale(1.02);
+        color: #fff;
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 .change-indicator {

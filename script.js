@@ -9,13 +9,14 @@ const CONFIG = {
     POLLING_INTERVAL: 60000, // 1 minute
 };
 
-// State Management
 let state = {
     currentSymbol: 'AAPL',
-    watchlist: JSON.parse(localStorage.getItem('watchlist')) || ['AAPL', 'TSLA', 'MSFT', 'AMZN', 'GOOGL'],
+    watchlist: JSON.parse(localStorage.getItem('watchlist')) || ['AAPL', 'TSLA', 'MSFT', 'AMZN', 'GOOGL', 'NVDA', 'META', 'NFLX', 'AMD', 'COIN'],
     history: JSON.parse(localStorage.getItem('predictionHistory')) || [],
     currentData: [],
-    theme: localStorage.getItem('theme') || 'dark'
+    theme: localStorage.getItem('theme') || 'dark',
+    realtimeTimer: null,
+    basePrice: 150.00
 };
 
 // Selectors
@@ -96,13 +97,12 @@ function generateMockHistory(symbol) {
     return history;
 }
 
-// --- UI Functions ---
-
 function updateStockUI(symbol, quote, history) {
     elements.stockSymbol.textContent = symbol;
-    elements.stockName.textContent = symbol; // Finnhub quote doesn't provide name, usually need separate call
+    elements.stockName.textContent = symbol;
 
-    const priceText = `$${quote.c.toFixed(2)}`;
+    state.basePrice = quote.c;
+    const priceText = `$${state.basePrice.toFixed(2)}`;
     const change = quote.dp.toFixed(2);
     const isPositive = quote.dp >= 0;
 
@@ -128,6 +128,30 @@ function updateStockUI(symbol, quote, history) {
         elements.confidence.style.width = `${prediction.confidence}%`;
         elements.confidencePct.textContent = `${prediction.confidence}%`;
     }
+
+    startRealtimeSimulation();
+}
+
+function startRealtimeSimulation() {
+    if (state.realtimeTimer) clearInterval(state.realtimeTimer);
+
+    state.realtimeTimer = setInterval(() => {
+        // Random drift: -0.1% to +0.1%
+        const drift = (Math.random() - 0.5) * 0.2;
+        state.basePrice += (state.basePrice * (drift / 100));
+
+        // Update Price UI
+        elements.price.textContent = `$${state.basePrice.toFixed(2)}`;
+
+        // Update Chart Realtime
+        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        analyzer.updateRealtime(state.basePrice, now);
+
+        // Visual pulse effect on price
+        elements.price.classList.add('pulse-price');
+        setTimeout(() => elements.price.classList.remove('pulse-price'), 200);
+
+    }, 2000); // Update every 2 seconds for that "real" feeling
 }
 
 function updateWatchlist() {
