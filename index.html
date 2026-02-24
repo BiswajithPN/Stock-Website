@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockVantage | AI Stock Prediction & Dashboard</title>
+    <meta name="description"
+        content="Professional AI-powered stock prediction dashboard. Track live prices, visualize charts, and get AI-based buy/sell signals.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="dark-mode">
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <img src="assets/logo.svg" alt="StockVantage Logo" class="logo">
+                <span class="logo-text">Stock<span>Vantage</span></span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-target="hero-section">
+                    <i class="icon-dashboard"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-target="watchlist-section">
+                    <i class="icon-watchlist"></i> Watchlist
+                </a>
+                <a href="#" class="nav-item" data-target="prediction-history-section">
+                    <i class="icon-history"></i> Prediction History
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="theme-toggle" class="theme-btn">
+                    <span class="mode-icon">🌙</span>
+                    <span class="mode-text">Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header / Search -->
+            <header class="top-bar">
+                <div class="search-container">
+                    <input type="text" id="stock-search" placeholder="Search stock symbol (e.g. AAPL, TSLA)..."
+                        autocomplete="off">
+                    <button id="search-btn">Search</button>
+                    <div id="search-results" class="search-dropdown hidden"></div>
+                </div>
+                <div class="user-profile">
+                    <div class="live-status">
+                        <span class="status-dot animate-pulse"></span> Market Live
+                    </div>
+                </div>
+            </header>
+
+            <!-- Marquee Ticker -->
+            <div class="ticker-wrap">
+                <div class="ticker" id="live-ticker">
+                    <!-- Ticker items will be injected here -->
+                </div>
+            </div>
+
+            <!-- Dashboard Sections -->
+            <section id="hero-section" class="content-section">
+                <div class="welcome-header">
+                    <h1>Market Insights</h1>
+                    <p>AI-powered predictions and real-time stock analysis at your fingertips.</p>
+                </div>
+                <!-- Stock Overview Hero -->
+                <div class="hero-grid">
+                    <div class="stock-main-card glass-card">
+                        <div class="card-header">
+                            <div class="stock-info">
+                                <h1 id="stock-name">Apple Inc.</h1>
+                                <span id="stock-symbol" class="symbol-badge">AAPL</span>
+                            </div>
+                            <div class="stock-actions">
+                                <button id="add-to-watchlist" class="btn-secondary">+ Watchlist</button>
+                            </div>
+                        </div>
+                        <div class="price-container">
+                            <h2 id="current-price">$0.00</h2>
+                            <span id="price-change" class="change-indicator">+0.00%</span>
+                        </div>
+                        <div class="stock-stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">High</span>
+                                <span id="stock-high" class="stat-value">$0.00</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Low</span>
+                                <span id="stock-low" class="stat-value">$0.00</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Volume</span>
+                                <span id="stock-volume" class="stat-value">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-prediction-card glass-card">
+                        <div class="card-header">
+                            <h3>AI Prediction</h3>
+                            <span class="ai-badge">BETA</span>
+                        </div>
+                        <div id="prediction-loader" class="loader hidden"></div>
+                        <div id="prediction-content">
+                            <div class="prediction-main">
+                                <span class="prediction-label">Next Day Forecast</span>
+                                <div id="predicted-price" class="predicted-value">$0.00</div>
+                            </div>
+                            <div class="prediction-details">
+                                <div class="detail-row">
+                                    <span>Signal</span>
+                                    <span id="buy-sell-signal" class="signal-badge">NEUTRAL</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Trend</span>
+                                    <span id="trend-direction" class="trend-indicator">—</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Confidence</span>
+                                    <div class="confidence-bar-container">
+                                        <div id="confidence-bar" class="confidence-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="confidence-pct">0%</span>
+                                </div>
+                            </div>
+                            <button id="save-prediction" class="btn-primary w-full">Save Prediction</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section glass-card">
+                    <div class="chart-controls">
+                        <div class="time-filters">
+                            <button class="time-filter" data-period="1D">1D</button>
+                            <button class="time-filter" data-period="1W">1W</button>
+                            <button class="time-filter active" data-period="1M">1M</button>
+                            <button class="time-filter" data-period="1Y">1Y</button>
+                        </div>
+                        <div class="chart-legend">
+                            <span class="legend-item"><span class="legend-color price-color"></span> Price</span>
+                            <span class="legend-item"><span class="legend-color ma-color"></span> SMA (20)</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="stockChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Watchlist Section -->
+            <section id="watchlist-section" class="content-section hidden">
+                <div class="section-header">
+                    <h2>Your Watchlist</h2>
+                </div>
+                <div class="watchlist-grid" id="watchlist-container">
+                    <!-- Watchlist items injected here -->
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section id="prediction-history-section" class="content-section hidden">
+                <div class="section-header">
+                    <h2>Prediction History</h2>
+                    <button id="clear-history" class="btn-danger">Clear All</button>
+                </div>
+                <div class="table-container glass-card">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Symbol</th>
+                                <th>Price at Prediction</th>
+                                <th>Predicted Price</th>
+                                <th>Signal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-body">
+                            <!-- History items injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Notification system -->
+    <div id="notifications" class="notifications-container"></div>
+
+    <script src="charts.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
